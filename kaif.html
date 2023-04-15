@@ -1,0 +1,265 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Kaif and The Lost Colors</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+  		<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+		<link rel="stylesheet" href="assets/css/nnfx-dark.min.css">
+		<script src="assets/js/highlight.min.js"></script>
+		<script>hljs.highlightAll();</script>
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<div class="inner">
+
+							<!-- Logo -->
+								<!--<a href="index.html" class="logo">
+									<span class="symbol"><img src="images/logo.svg" alt="" /></span><span class="title">Phantom</span>
+								</a>-->
+
+							<!-- Nav -->
+								<nav>
+									<ul>
+										<li><a href="#menu">Menu</a></li>
+									</ul>
+								</nav>
+
+						</div>
+					</header>
+
+				<!-- Menu -->
+					<nav id="menu">
+						<h2>Menu</h2>
+						<ul>
+							<li><a href="index.html">Home</a></li>
+							<li><a href="generic.html">Blog Posts</a></li>
+							<li><a href="about.html">About</a></li>
+							<li><a href="generic.html">Get in touch</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">	
+							<div class ="title-image">
+								<span class="image main"><img src="images/kaifPage.png" width = "500" alt="" /></span>
+							</div>			
+							
+							<p><a href="https://leomagnez.itch.io/kaif-and-the-lost-colors"> <b>Play the game here</b></a></p>
+							<b>A bit of context</b>
+							<p>At the end of my first year at ETPA, we had to make our first "real" videogame : a platformer, based on the original <i>Super Mario Bros.</i> but with a unique mechanic. The game had to last approximately 5 minutes and be made with Phaser 3. </p>
+							<p>At first, I had the idea of mixing platforming and puzzle solving. You would've had to play 2 characters : one dressed in blue and one dressed in red. Only the Blue character would've been able to interact with Blue elements (such as buttons to open doors for example) and vice versa. However, my Programming teacher told me it was a bit too complicated for a first game (and probably boring, too), so I had to give the whole thing another thought.</p>
+							<p>I decided to keep the concept of using different colors in order to progress through the game but instead of playing 2 characters, you would play 1 who's able to swap between Blue and Red with the press of a button. I ditched the whole puzzle-solving idea and instead decided to use the color-swapping mechanic to make a fast-paced platformer inspired by Maddy Makes Games' <i>Celeste</i>.</p>
+							<p>Thus, the main idea behind <i>Kaif and the Lost Colors</i> was born.</p>
+							<img src="images/colorSwap.gif" alt="" class="center" />
+							<br></br>
+
+							<b>Mechanics</b>
+							<p>Keeping the main mechanic of the game pretty simple allowed me to think about other mechanics revolving around the same concept : if you touch any element while being in the wrong color, you die.</p>
+							<p>So here is a list of mechanics that came into my mind :</p>
+							<p><i>- Simple static platforms,</i></p>
+							<p><i>- Moving platforms,</i></p>
+							<p><i>- Trampolines,</i></p>
+							<p><i>- Speed boosts.</i></p>
+
+							<p>I also decided to add some other things not revolving around color-swapping such as :</p>
+							<p><i>- Spikes,</i></p>
+							<p><i>- Secret walls leading to collectibles,</i></p>
+							<p><i>- A speedrunning clock.</i></p>
+
+							<p>That being said, let's move on to the first (major) problem I encountered : making the moving platforms.</p>
+
+							<b>Moving Platforms</b>
+							<p>You see, on paper, a moving platform is pretty straightforward : a platform, moving left to right while the player move alongside it. Simple, right ? Well...</p>
+							<p>...For some reason, when I instantiated my moving platforms, the player was only moving alongside the very last one, and simply standing still and falling off all the other ones. So I had to fix that. After trying a few different solutions, I figured out that modifying the player's speed to match the platforms' speed in any of the two directions while standing on them was the solution. Here's how I did it :</p>
+
+							<div class="snippet">
+								<b>In the movingPlatforms.js class</b>							
+								<pre>
+									<code class="language-javascript">
+if (this.body.touching.up && this.movePlayer === true)
+{
+	player.getAccel(this.body.velocity.x + this.nSpeed * this.nDir - 0.02);
+	this.movePlayer = false;
+								
+}
+else if (this.movePlayer === false)
+{
+	player.getAccel(0);
+	this.movePlayer = true;
+}
+									</code>
+								</pre>
+
+								<b>In the character.js class</b>
+								<pre>
+									<code class="language-javascript">
+getAccel (newPlatformVelocity) //allow the player to stay on a moving platform
+{ 
+
+	this.initialPlatformVelocity = newPlatformVelocity;
+}
+									</code>
+								</pre>
+							</div>
+							<p>These two functions are running every frame, so it's probably not the best solution, especially for a game made to run in the browser, but I didn't know any better at the time and for a 5 minutes demo, it was good enough.</p>
+							<img src="images/movingPlatforms.gif" alt="" class="center" />
+							<br></br>
+							<p>Now, let's take a look at the biggest problem I had to face : making sure the speed boosts were working correctly.</p>
+							<b>Speed Boosts</b>
+							<p><i>Kaif and the Lost Colors</i> features 2 kinds of speed boosts : one boosting the player to the left and one boosting the player to the right. With alternating colors of course, to keep that fast-paced color-swapping principle.</p>
+							<p>The main idea was really simple to implement : when the player collide with a speed boost while being the right color, their speed increases. However 2 problems arose : </p>
+							<p>First, when the player was colliding with a boost in the wrong direction (such as entering a left boost from the right), they would instantly get pushed back, as the boost was trying to send them in the direction it was facing. I didn't want that, as it would prevent the player to go back if they missed a collectible and could also put a stop to any momentum, making the movement very frustrating to handle near the boosts.</p>
+							<p>I fixed it by performing a simple check on the player's direction to know which one they were facing, and only activated the boost if they were facing the right one :</p>
+
+							<div class ="snippet">
+								<b>In the speedBoost.js class</b>
+								<pre>
+									<code class="language-javascript">
+collision(delta)
+{
+	if(this.right)
+	{
+		player.boostRight = true;
+	}
+	else
+	{
+		player.boostLeft = true;
+	}
+									</code>
+								</pre>
+							</div>
+
+							<div class ="snippet">
+								<b>In the character.js class</b>
+								<pre>
+									<code class="language-javascript">
+if (this.boostLeft == true)
+{
+
+	this.body.velocity.x =this.initialPlatformVelocity + -800; 
+	//"initialPlatformVelocity" is actually the player's speed, 
+	//I forgot to rename it after handling the previous problem
+}
+else
+{
+	
+	this.body.velocity.x = this.initialPlatformVelocity-300; 
+	//in JS, Left is the "negative" direction, hence "-300" on the speed, same for above
+}
+
+if (this.boostRight == true)
+{
+	this.body.velocity.x =this.initialPlatformVelocity + 800;
+}
+
+{
+				
+	this.body.velocity.x = this.initialPlatformVelocity +  300;
+}
+									</code>
+								</pre>
+							</div>
+
+							<p>Once that was fixed I realized that after being boosted, the player weren't loosing their speed when colliding with a wall, allowing them to accumulate more and more speed to the point where they were able to skip entire parts of the level, and even phasing through walls ! </p>
+							<p>Here's how I handled it : </p>
+
+							<div class ="snippet">
+								<b>In the character.js class</b>
+								<pre>
+									<code class="language-javascript">
+if ((this.walkRight.isUp || this.body.blocked.right) && !this.stunned&& !gameEnded)
+{ //if the "walkRight" key is not pushed OR the player is blocked from the Right
+
+	this.boostRight = false;
+											
+}
+								
+if ((this.walkLeft.isUp || this.body.blocked.left) && !this.stunned&& !gameEnded)
+{//same than above but for the Left
+
+	this.boostLeft = false;
+								
+}
+									</code>
+								</pre>
+							</div>
+							<p>And with that, my speed boosts were working as intended !</p>
+							<img src="images/speedBoosts.gif" alt="" class="center" />
+							<br></br>
+							<b>If I had to remake the game today, what would I do differently ?</b>
+							<p>The game's main downside (according to me) is its poor optimization. It runs smoothly as of now because it's a 5 minutes demo but I bet it would become pretty laggy if I had to turn it into a fully fleshed out game with the methods I used to code the mechanics.</p>
+							<p>I would also take the time to implement mechanics I had to ditch in order to respect the deadline such as wall-jumping for example.</p>
+							<p>Finally, the game can feel pretty unfair right now due to the absence of coyote-time to compensate for the delay between your eyes receiving an information and your hands performing an action in response. I didn't know that existed at the time so I would definitely implement it now.</p>
+							<p>A few weeks after release, I remade the game with Unity, mainly because I thought it would be a good entry point to start learning C#. I didn't have the necessary hindsight to change everything I just listed though so everything pretty much stayed the exact same.</p>
+							<b>Conclusion</b>
+							<p>While this project might seem pretty simple at first glance, the problems I had to overcome were still pretty challenging for a beginner like me. But it was also what sparked my interest in the programming part of Game Development.</p>
+							<p>All in all, <i>Kaif and the Lost Colors</i> was a very formative project, and it getting the 2nd best grade of the whole class comforted me in my ability to learn more and do better on future, more complex projects.</p>
+						</div>
+					</div>
+
+				<!-- Footer -->
+					<footer id="footer">
+						<div class="inner">
+							<section>
+								<h2>Get in touch</h2>
+								<form method="post" action="#">
+									<div class="fields">
+										<div class="field half">
+											<input type="text" name="name" id="name" placeholder="Name" />
+										</div>
+										<div class="field half">
+											<input type="email" name="email" id="email" placeholder="Email" />
+										</div>
+										<div class="field">
+											<textarea name="message" id="message" placeholder="Message"></textarea>
+										</div>
+									</div>
+									<ul class="actions">
+										<li><input type="submit" value="Send" class="primary" /></li>
+									</ul>
+								</form>
+							</section>
+							<section>
+								<h2>Follow</h2>
+								<ul class="icons">
+									<li><a href="#" class="icon brands style2 fa-twitter"><span class="label">Twitter</span></a></li>
+									<li><a href="#" class="icon brands style2 fa-facebook-f"><span class="label">Facebook</span></a></li>
+									<li><a href="#" class="icon brands style2 fa-instagram"><span class="label">Instagram</span></a></li>
+									<li><a href="#" class="icon brands style2 fa-dribbble"><span class="label">Dribbble</span></a></li>
+									<li><a href="#" class="icon brands style2 fa-github"><span class="label">GitHub</span></a></li>
+									<li><a href="#" class="icon brands style2 fa-500px"><span class="label">500px</span></a></li>
+									<li><a href="#" class="icon solid style2 fa-phone"><span class="label">Phone</span></a></li>
+									<li><a href="#" class="icon solid style2 fa-envelope"><span class="label">Email</span></a></li>
+								</ul>
+							</section>
+							<ul class="copyright">
+								<li>&copy; Untitled. All rights reserved</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+							</ul>
+						</div>
+					</footer>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
